@@ -10,6 +10,7 @@ struct 	    customerdetails {
 	int creditcard;
 	int pumpusing;
 	int status;
+	int color;
 };
 /*		printf("Arrival at pump\n"); status=1
 		printf("swiping a credit card\n"); status=2
@@ -61,6 +62,7 @@ private:
 	char carname[10];
 	int desiredgrade;
 	int creditcard;
+	int carcolor;
 	int pumpusing;
 	char pipe[10];
 	char MUTEX[4];
@@ -71,18 +73,18 @@ private:
 	char Empty[7];
 	char Full[6];
 public:
-	Customer(int creditcardnumber, char customername[10], int desiredgasgrade, int assignedpump, double desiredvolume);
+	Customer(int creditcardnumber, char customername[10], int desiredgasgrade, int assignedpump, double desiredvolume,int color);
 	int main();
 	// getpump();
 };
 
 
-Customer::Customer(int creditcardnumber, char customername[10], int desiredgasgrade, int assignedpump, double desiredvolume) {
+Customer::Customer(int creditcardnumber, char customername[10], int desiredgasgrade, int assignedpump, double desiredvolume,int color) {
 	desiredVol = desiredvolume;
 	desiredgrade = desiredgasgrade;
 	creditcard = creditcardnumber;
 	pumpusing = assignedpump;
-
+	carcolor = color;
 	
 	strcpy_s(carname, customername);
 
@@ -147,7 +149,7 @@ int Customer::main() {
 	mystruct.desiredgrade = 0;
 	mystruct.pumpusing = pumpusing;
 	mystruct.creditcard = 0;
-	
+	mystruct.color = carcolor;
 
 	M1.Wait();
 	P1.Write(&mystruct);			// write the structure to the pipeline

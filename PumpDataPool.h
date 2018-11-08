@@ -16,5 +16,6 @@ struct 	    PumpDataPool {
 	int status;
 	int tankusing;
 	double volume;
+	double baseprice;
 };
 

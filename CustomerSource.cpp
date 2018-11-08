@@ -16,32 +16,32 @@ int main() {
 	char Dan[10] = "Dan      ";
 	char Chuck[10] = "Chuck    ";
 	
-	Customer customerbob(10123321, bob, 78, 1,35.0);
+	Customer customerbob(10123321, bob, 78, 1,35.0,1);
 	customerbob.Resume();
 	SLEEP(100);
 	/**/
-	Customer customertim(21234123, tim, 91, 2,45.0);
+	Customer customertim(21234123, tim, 91, 2,45.0,2);
 	customertim.Resume();
 	
 	SLEEP(100);
-	Customer customerjohn(38765432, john, 91, 3,30.0);
+	Customer customerjohn(38765432, john, 91, 3,30.0,3);
 	customerjohn.Resume();
 	
 	SLEEP(100);
-	Customer customersteve(41827364, steve, 80, 4,20.0);
+	Customer customersteve(41827364, steve, 80, 4,20.0,4);
 	customersteve.Resume();
 	
 	SLEEP(100);
 	
-	Customer customerphil(53234123, phil, 78, 1, 25.0);
+	Customer customerphil(53234123,phil, 78, 1, 25.0,5);
 	customerphil.Resume();
 	SLEEP(100); 
 
-	Customer customerdan(65234123, Dan, 97, 1, 30.0);
+	Customer customerdan(65234123, Dan, 97, 1, 30.0,6);
 	customerdan.Resume();
 	SLEEP(1000);
 
-	Customer customerchuck(73234123, Chuck, 91, 1, 45.0);
+	Customer customerchuck(73234123, Chuck, 91, 1, 45.0,0);
 	customerchuck.Resume();
 
 
@@ -50,6 +50,7 @@ int main() {
 	for (int i = 0; i < 100; i++) {
 		int Nameindex = rand() % 4;
 		int gradeindex = rand() % 4;
+		int color = rand() % 7;
 		int gradedesired;
 		if (gradeindex == 0) {
 			gradedesired = 78;
@@ -64,8 +65,8 @@ int main() {
 			gradedesired = 97;
 		}
 		int pumpindex = (rand() % 4) + 1;
-		int desiredVolumeindex = ((rand() % 10)+1) * 5;
-		thePassengers[i] = new Customer(i, cust, gradedesired, pumpindex, desiredVolumeindex);
+		int desiredVolumeindex = ((rand() % 7)+1) * 5;
+		thePassengers[i] = new Customer(i, cust, gradedesired, pumpindex, desiredVolumeindex,color);
 		thePassengers[i]->Resume();
 		Sleep(rand() % 1000);
 	}

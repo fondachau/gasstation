@@ -8,6 +8,7 @@
 
 #include<ctime>
 #include <iostream>
+#include <fstream>
 
 #define ANSI_COLOR_RED     "\x1b[31m"
 #define ANSI_COLOR_GREEN   "\x1b[32m"
@@ -42,12 +43,13 @@ private:
 	List<char*>L0;
 	List<Donestruct*>DONELL;
 
+	ofstream myfile;
 
 	/*struct theData {
 		int x;	// the data to be protected
 	};
 
-	CDataPool	*DataPool;  // a datapool containing the data to be protected double balance; 
+	CDataPool	*DataPool;  // a datapool containing the data to be protected double balance;
 	theData		*ptr;			// pointer to the data
 
 	*/
@@ -58,10 +60,29 @@ private:
 	CMutex	    *Mutex5;	       // a pointer to a hidden mutex protecting the ‘Balance’ variable above
 
 	CMutex	    *MutexScreen;	       // a pointer to a hidden mutex protecting the ‘Balance’ variable above
+	CMutex	    *MutexFile;	       // a pointer to a hidden mutex protecting the ‘Balance’ variable above
 
 public:
 
-	void addtowaitlist(char* name, int x) {
+
+	void addtowaitlist(char* name, int x);
+	void deletenodewaitlist(int x);
+
+	void addtodoneLL(Donestruct* cust);
+	void closefile();
+	void openfile(string x);
+	void printdoneLL();
+
+	void printcustinfo(PumpDataPool* cust, int cursorx, int cursory);
+	int waitlistindex(int x);
+	void printtime(Donestruct *output);
+
+	void printtank(int x, double vol);
+	void printwaitlist(int x);
+	MonitorScreen(string Name);
+	~MonitorScreen();
+};
+	void MonitorScreen::addtowaitlist(char* name, int x) {
 	
 
 		if (x == 1) {
@@ -87,7 +108,7 @@ public:
 		printwaitlist(x);
 	}
 
-	void deletenodewaitlist(int x) {
+	void MonitorScreen::deletenodewaitlist(int x) {
 
 
 		if (x == 1) {
@@ -112,14 +133,37 @@ public:
 		}
 		printwaitlist(x);
 	}
-void addtodoneLL(Donestruct* cust) {
+void MonitorScreen::addtodoneLL(Donestruct* cust) {
 		Mutex5->Wait();
 		DONELL.Insert(cust);
 		Mutex5->Signal();
 		printdoneLL();
-	}
 
-void printdoneLL() {
+
+		MutexFile->Wait();
+
+			myfile << "[Y" << DONELL.GetLast()->year << " M" << DONELL.GetLast()->month << " D"<< DONELL.GetLast()->day
+				<<" H"<< DONELL.GetLast()->hours<<" M"<< DONELL.GetLast()->minutes<<" S"<< DONELL.GetLast()->seconds
+				<<"]  Grade:"<< DONELL.GetLast()->pool.tankusing<<" Volume:"<<DONELL.GetLast()->pool.volume
+				<<" Pump:"<< DONELL.GetLast()->pool.pumpnumber<<" CC:"<< DONELL.GetLast()->pool.creditcard<<" Name:"<< DONELL.GetLast()->pool.name<<"\n",
+
+				MutexFile->Signal();
+		
+	}
+void MonitorScreen::closefile() {
+	MutexFile->Wait();
+	myfile.close();
+
+	MutexFile->Signal();
+}
+void MonitorScreen::openfile(string x) {
+
+	MutexFile->Wait();
+	myfile.open(x);
+
+	MutexFile->Signal();
+}
+void MonitorScreen::printdoneLL() {
 	int index;
 	int x;
 	Mutex5->Wait();
@@ -129,8 +173,8 @@ void printdoneLL() {
 
 	for (x = 0; x < index; x++) {
 		if (DONELL.Get(x) != NULL) {
-			MOVE_CURSOR(140, 0 + x);
-			printf("[Y%d M%d D%d H%d M%d S%d] %d %lf %d %d %s\n", 
+			MOVE_CURSOR(120, 0 + x);
+			printf("[Y%d M%d D%d H%d M%d S%d] Grade:%d Volume:%lf Pump:%d CC:%d Name:%s\n", 
 				DONELL.Get(x)->year, DONELL.Get(x)->month, DONELL.Get(x)->day, DONELL.Get(x)->hours, DONELL.Get(x)->minutes, DONELL.Get(x)->seconds, 
 				DONELL.Get(x)->pool.tankusing, DONELL.Get(x)->pool.volume, DONELL.Get(x)->pool.pumpnumber,DONELL.Get(x)->pool.creditcard, DONELL.Get(x)->pool.name);
 		}
@@ -140,7 +184,7 @@ void printdoneLL() {
 }
 
 
-void printcustinfo(PumpDataPool* cust,int cursorx,int cursory) {
+void MonitorScreen::printcustinfo(PumpDataPool* cust,int cursorx,int cursory) {
 	MutexScreen->Wait();
 	MOVE_CURSOR(cursorx, cursory);
 	printf(" ____ pumpnumber = %d \n", cust->pumpnumber);
@@ -165,7 +209,7 @@ void printcustinfo(PumpDataPool* cust,int cursorx,int cursory) {
 
 	MutexScreen->Signal();
 }
-int waitlistindex(int x) {
+int MonitorScreen::waitlistindex(int x) {
 	int index;
 
 	if (x == 1) {
@@ -195,7 +239,7 @@ int waitlistindex(int x) {
 	return index;
 }
 
-void printtime(Donestruct *output) {
+void MonitorScreen::printtime(Donestruct *output) {
 
 	//int x;
 //	int output[6];
@@ -319,7 +363,7 @@ void printtime(Donestruct *output) {
 		//return
 }
 
-void printtank(int x, double vol) {
+void MonitorScreen::printtank(int x, double vol) {
 	MutexScreen->Wait();
 	
 	if (x == 78) {
@@ -355,7 +399,7 @@ void printtank(int x, double vol) {
 	MutexScreen->Signal();
 
 }
-void printwaitlist(int x) {
+void MonitorScreen::printwaitlist(int x) {
 	int index;
 	int i;
 	//int y;
@@ -474,13 +518,14 @@ void printwaitlist(int x) {
 	
 
 	// constructor and destructor
-	MonitorScreen(string Name) {
+MonitorScreen::MonitorScreen(string Name) {
 		Mutex1 = new CMutex(string("__Mutex1__") + string(Name));
 		Mutex2 = new CMutex(string("__Mutex2__") + string(Name));
 		Mutex3 = new CMutex(string("__Mutex3__") + string(Name));
 		Mutex4 = new CMutex(string("__Mutex4__") + string(Name));
 		Mutex5 = new CMutex(string("__Mutex5__") + string(Name));
 		MutexScreen = new CMutex("dosmuxP");
+		MutexFile = new CMutex("file");
 
 		
 		
@@ -491,7 +536,7 @@ void printwaitlist(int x) {
 
 
 	}
-	~MonitorScreen() { /* delete mutex and datapool; */ }
-};
+MonitorScreen::~MonitorScreen() { /* delete mutex and datapool; */ }
+
 #endif
 

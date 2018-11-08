@@ -36,7 +36,7 @@ public:
 	T Get(int index);// get some data from the list e.g. 5th item etc 
 	void PrintList();// print all data nodes in the list
 	int NumberofNodes();
-
+	T GetLast();
 };
 template <class T>
 List<T>::List() {
@@ -133,6 +133,12 @@ T List<T>::Get(int index) {
 
 	}
 	return temp->value;
+
+}
+template <class T>
+T List<T>::GetLast() {
+	
+	return last->value;
 
 }
 template <class T>

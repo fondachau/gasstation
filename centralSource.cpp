@@ -36,12 +36,14 @@ CSemaphore		cs4(CS4, 1, 1);    // semaphore with initial value 1 and max value 1
 
 //use to make sure that all pump datapools and created before reading
 CRendezvous     RP("ReadPumpDP", 4);
-
+double gassprice=2.0;
 
 //ChildThread1 to Childthread4
 //reads datapool from datapool
 UINT __stdcall ChildThread1(void *args) {
-	
+	CSemaphore		psb(PS1 + string("b"), 0, 1);    // semaphore with initial value 0 and max value 1
+	CSemaphore		csb(CS1 + string("b"), 1, 1);    // semaphore with initial value 1 and max value 1
+
 	CDataPool 		Pump1("Pump1", sizeof(struct PumpDataPool));
 	struct PumpDataPool 	 *mypump1 = (struct PumpDataPool *)(Pump1.LinkDataPool());
 	//int waitlist=0;
@@ -67,14 +69,15 @@ UINT __stdcall ChildThread1(void *args) {
 		}
 		cs1.Signal();
 		if (cust.status == 9) {
-			mystructsave[i].creditcard = mypump1->creditcard;
-			mystructsave[i].pumpnumber = mypump1->pumpnumber;
-			mystructsave[i].status = mypump1->status;
-			mystructsave[i].tankusing = mypump1->tankusing;
-			mystructsave[i].volume = mypump1->volume;
-			for (x = 0; x < 10; x++) {
-				mystructsave[i].name[x] = mypump1->name[x];
-			}
+			mystructsave[i] = cust;
+			//mystructsave[i].creditcard = mypump1->creditcard;
+			//mystructsave[i].pumpnumber = mypump1->pumpnumber;
+			//mystructsave[i].status = mypump1->status;
+			//mystructsave[i].tankusing = mypump1->tankusing;
+			//mystructsave[i].volume = mypump1->volume;
+			//for (x = 0; x < 10; x++) {
+			//	mystructsave[i].name[x] = mypump1->name[x];
+			//}
 			screen.addtowaitlist(&mystructsave[i].name[0],1);
 			//screen.waitlistindex(1);
 			i++;
@@ -83,15 +86,24 @@ UINT __stdcall ChildThread1(void *args) {
 			screen.deletenodewaitlist(1);
 		
 		}
+		else if (cust.status == 4) {
+			csb.Wait();
+			if (cust.tankusing == 78)
+				mypump1->baseprice = gassprice;
+			else if (cust.tankusing == 80)
+				mypump1->baseprice = 1.1*gassprice;
+			else if (cust.tankusing == 91)
+				mypump1->baseprice = 1.2*gassprice;
+			else if (cust.tankusing == 97)
+				mypump1->baseprice = 1.4*gassprice;
+
+			psb.Signal();
+
+		}
+
 		else if (cust.status == 6) {
-			mystructsave[j].creditcard = mypump1->creditcard;
-			mystructsave[j].pumpnumber = mypump1->pumpnumber;
-			mystructsave[j].status = mypump1->status;
-			mystructsave[j].tankusing = mypump1->tankusing;
-			mystructsave[j].volume = mypump1->volume;
-			for (x = 0; x < 10; x++) {
-				mystructsave[j].name[x] = mypump1->name[x];
-			}
+
+			mystructsave[j] = cust;
 
 			savedonestruct[j].pool = mystructsave[j];
 			screen.printtime(&savedonestruct[j]);
@@ -108,6 +120,9 @@ UINT __stdcall ChildThread1(void *args) {
 	return 0;
 }
 UINT __stdcall ChildThread2(void *args) {
+	CSemaphore		psb(PS2 + string("b"), 0, 1);    // semaphore with initial value 0 and max value 1
+	CSemaphore		csb(CS2 + string("b"), 1, 1);    // semaphore with initial value 1 and max value 1
+
 	CDataPool 		Pump2("Pump2", sizeof(struct PumpDataPool));
 	struct PumpDataPool 	 *mypump1 = (struct PumpDataPool *)(Pump2.LinkDataPool());
 	int x;
@@ -131,35 +146,38 @@ UINT __stdcall ChildThread2(void *args) {
 		}
 		cs2.Signal();
 		if (cust.status == 9) {
-			mystructsave[i].creditcard = mypump1->creditcard;
-			mystructsave[i].pumpnumber = mypump1->pumpnumber;
-			mystructsave[i].status = mypump1->status;
-			mystructsave[i].tankusing = mypump1->tankusing;
-			mystructsave[i].volume = mypump1->volume;
-			for (x = 0; x < 10; x++) {
-				mystructsave[i].name[x] = mypump1->name[x];
-			}
+
+			mystructsave[i] = cust;
 			screen.addtowaitlist(&mystructsave[i].name[0], 2);
 			//screen.waitlistindex(1);
 			i++;
 		}
 		else if (cust.status == 2) {
 			screen.deletenodewaitlist(2);
+		}
+		else if (cust.status == 4) {
+			csb.Wait();
+			if (cust.tankusing == 78)
+				mypump1->baseprice = gassprice;
+			else if (cust.tankusing == 80)
+				mypump1->baseprice = 1.1*gassprice;
+			else if (cust.tankusing == 91)
+				mypump1->baseprice = 1.2*gassprice;
+			else if (cust.tankusing == 97)
+				mypump1->baseprice = 1.4*gassprice;
+
+			psb.Signal();
+
+			mystructsave[j].baseprice = gassprice;
 		
 		}
 		else if (cust.status == 6) {
-			mystructsave[j].creditcard = mypump1->creditcard;
-			mystructsave[j].pumpnumber = mypump1->pumpnumber;
-			mystructsave[j].status = mypump1->status;
-			mystructsave[j].tankusing = mypump1->tankusing;
-			mystructsave[j].volume = mypump1->volume;
-			for (x = 0; x < 10; x++) {
-				mystructsave[j].name[x] = mypump1->name[x];
-			}
 
+			mystructsave[j] = cust;
 			savedonestruct[j].pool = mystructsave[j];
 			screen.printtime(&savedonestruct[j]);
 			screen.addtodoneLL(&savedonestruct[j]);
+
 
 			j++;
 		}
@@ -173,6 +191,8 @@ UINT __stdcall ChildThread2(void *args) {
 	return 0;
 }
 UINT __stdcall ChildThread3(void *args) {
+	CSemaphore		psb(PS3 + string("b"), 0, 1);    // semaphore with initial value 0 and max value 1
+	CSemaphore		csb(CS3 + string("b"), 1, 1);    // semaphore with initial value 1 and max value 1
 
 	CDataPool 		Pump3("Pump3", sizeof(struct PumpDataPool));
 	struct PumpDataPool 	 *mypump1 = (struct PumpDataPool *)(Pump3.LinkDataPool());
@@ -196,32 +216,34 @@ UINT __stdcall ChildThread3(void *args) {
 		}
 		cs3.Signal();
 		if (cust.status == 9) {
-			mystructsave[i].creditcard = mypump1->creditcard;
-			mystructsave[i].pumpnumber = mypump1->pumpnumber;
-			mystructsave[i].status = mypump1->status;
-			mystructsave[i].tankusing = mypump1->tankusing;
-			mystructsave[i].volume = mypump1->volume;
-			for (x = 0; x < 10; x++) {
-				mystructsave[i].name[x] = mypump1->name[x];
-			}
+			mystructsave[i] = cust;
 			screen.addtowaitlist(&mystructsave[i].name[0], 3);
 			//screen.waitlistindex(1);
 			i++;
 		}
 		else if (cust.status == 2) {
 			screen.deletenodewaitlist(3);
-		
-
+			
 		}
+		else if (cust.status == 4) {
+			csb.Wait();
+			if (cust.tankusing == 78)
+				mypump1->baseprice = gassprice;
+			else if (cust.tankusing == 80)
+				mypump1->baseprice = 1.1*gassprice;
+			else if (cust.tankusing == 91)
+				mypump1->baseprice = 1.2*gassprice;
+			else if (cust.tankusing == 97)
+				mypump1->baseprice = 1.4*gassprice;
+
+			psb.Signal();
+
+			mystructsave[j].baseprice = gassprice;
+		}
+
 		else if (cust.status == 6) {
-			mystructsave[j].creditcard = mypump1->creditcard;
-			mystructsave[j].pumpnumber = mypump1->pumpnumber;
-			mystructsave[j].status = mypump1->status;
-			mystructsave[j].tankusing = mypump1->tankusing;
-			mystructsave[j].volume = mypump1->volume;
-			for (x = 0; x < 10; x++) {
-				mystructsave[j].name[x] = mypump1->name[x];
-			}
+
+			mystructsave[j] = cust;
 			savedonestruct[j].pool = mystructsave[j];
 			screen.printtime(&savedonestruct[j]);
 			screen.addtodoneLL(&savedonestruct[j]);
@@ -238,6 +260,8 @@ UINT __stdcall ChildThread3(void *args) {
 	return 0;
 }
 UINT __stdcall ChildThread4(void *args) {
+	CSemaphore		psb(PS4 + string("b"), 0, 1);    // semaphore with initial value 0 and max value 1
+	CSemaphore		csb(CS4 + string("b"), 1, 1);    // semaphore with initial value 1 and max value 1
 
 	CDataPool 		Pump4("Pump4", sizeof(struct PumpDataPool));
 	struct PumpDataPool 	 *mypump1 = (struct PumpDataPool *)(Pump4.LinkDataPool());
@@ -262,33 +286,34 @@ UINT __stdcall ChildThread4(void *args) {
 		}
 		cs4.Signal();
 		if (cust.status == 9) {
-			mystructsave[i].creditcard = mypump1->creditcard;
-			mystructsave[i].pumpnumber = mypump1->pumpnumber;
-			mystructsave[i].status = mypump1->status;
-			mystructsave[i].tankusing = mypump1->tankusing;
-			mystructsave[i].volume = mypump1->volume;
-			for (x = 0; x < 10; x++) {
-				mystructsave[i].name[x] = mypump1->name[x];
-			}
+			mystructsave[i] = cust;
 			screen.addtowaitlist(&mystructsave[i].name[0], 4);
 			//screen.waitlistindex(1);
 			i++;
 		}
 		else if (cust.status == 2) {
 			screen.deletenodewaitlist(4);
-
-
+			
 		}
-		else if (cust.status == 6) {
-			mystructsave[j].creditcard = mypump1->creditcard;
-			mystructsave[j].pumpnumber = mypump1->pumpnumber;
-			mystructsave[j].status = mypump1->status;
-			mystructsave[j].tankusing = mypump1->tankusing;
-			mystructsave[j].volume = mypump1->volume;
-			for (x = 0; x < 10; x++) {
-				mystructsave[j].name[x] = mypump1->name[x];
-			}
+		else if (cust.status == 4) {
+			csb.Wait();
+			if (cust.tankusing == 78)
+				mypump1->baseprice = gassprice;
+			else if (cust.tankusing == 80)
+				mypump1->baseprice = 1.1*gassprice;
+			else if (cust.tankusing == 91)
+				mypump1->baseprice = 1.2*gassprice;
+			else if (cust.tankusing == 97)
+				mypump1->baseprice = 1.4*gassprice;
 
+			psb.Signal();
+			mystructsave[j].baseprice = gassprice;
+		}
+
+		else if (cust.status == 6) {
+
+			mystructsave[j] = cust;
+			
 			savedonestruct[j].pool = mystructsave[j];
 			screen.printtime(&savedonestruct[j]);
 			screen.addtodoneLL(&savedonestruct[j]);
@@ -343,6 +368,9 @@ UINT __stdcall ChildThread5(void *args) {
 					KeyData[0] = '\0';// move up previous character read
 					KeyData[1] = '\0';// read next character from keyboard}}
 
+					KeyData[2] = '\0';// move up previous character read
+					KeyData[3] = '\0';// read next character from keyboard}}
+
 				}
 
 				if ((KeyData[1] == '1'&&KeyData[3] == 'f') || (KeyData[3] == '1'&&KeyData[1] == 'f')) {
@@ -350,11 +378,17 @@ UINT __stdcall ChildThread5(void *args) {
 					KeyData[0] = '\0';// move up previous character read
 					KeyData[1] = '\0';// read next character from keyboard}}
 
+					KeyData[2] = '\0';// move up previous character read
+					KeyData[3] = '\0';// read next character from keyboard}}
+
 				}
 				if ((KeyData[1] == '2'&&KeyData[3] == 'f') || (KeyData[3] == '2'&&KeyData[1] == 'f')) {
 					Tanks1.refill80();
 					KeyData[0] = '\0';// move up previous character read
 					KeyData[1] = '\0';// read next character from keyboard}}
+
+					KeyData[2] = '\0';// move up previous character read
+					KeyData[3] = '\0';// read next character from keyboard}}
 
 				}
 				if ((KeyData[1] == '3'&&KeyData[3] == 'f' )|| (KeyData[3] == '3'&&KeyData[1] == 'f')) {
@@ -362,52 +396,46 @@ UINT __stdcall ChildThread5(void *args) {
 					KeyData[0] = '\0';// move up previous character read
 					KeyData[1] = '\0';// read next character from keyboard}}
 
+					KeyData[2] = '\0';// move up previous character read
+					KeyData[3] = '\0';// read next character from keyboard}}
+
 				}
 				if ((KeyData[1] == '4'&&KeyData[3] == 'f' )|| (KeyData[3] == '4'&&KeyData[1] == 'f')) {
 					Tanks1.refill97();
 					KeyData[0] = '\0';// move up previous character read
 					KeyData[1] = '\0';// read next character from keyboard}}
 
+					KeyData[2] = '\0';// move up previous character read
+					KeyData[3] = '\0';// read next character from keyboard}}
+
 				}
 				if ((KeyData[1] == 's'&&KeyData[3] == 'c') || (KeyData[3] == 's'&&KeyData[1] == 'c')) {
-					DoswindowMux.Wait();
-
-					CLEAR_SCREEN();
-					DoswindowMux.Signal();
+					screen.closefile();
+					exit(0);
 				}
+				if ((KeyData[1] == 'p'&&KeyData[3] == 'u') || (KeyData[3] == 'p'&&KeyData[1] == 'u')) {
+					gassprice += 0.1;
+					KeyData[0] = '\0';// move up previous character read
+					KeyData[1] = '\0';// read next character from keyboard}}
 
+					KeyData[2] = '\0';// move up previous character read
+					KeyData[3] = '\0';// read next character from keyboard}}
+
+				}
+				if ((KeyData[1] == 'p'&&KeyData[3] == 'd') || (KeyData[3] == 'p'&&KeyData[1] == 'd')) {
+					gassprice -= 0.1;
+					KeyData[0] = '\0';// move up previous character read
+					KeyData[1] = '\0';// read next character from keyboard}}
+
+					KeyData[2] = '\0';// move up previous character read
+					KeyData[3] = '\0';// read next character from keyboard}}
+
+				}
 
 
 
 			//SLEEP(5000);
 		}
-				//}
-
-		/*
-		if (KeyData[0] == 'r') {
-			Tanks1.refill();
-			KeyData[0] = '\0';
-		}
-
-		if (KeyData[0] == '1') {
-			Tanks1.refill78();
-			KeyData[0] = '\0';
-		}
-		if ( KeyData[0] == '2') {
-			Tanks1.refill80();
-			KeyData[0] = '\0';
-		}
-		if (KeyData[0] == '3') {
-			Tanks1.refill91();
-			KeyData[0] = '\0';
-		}
-		if (KeyData[0] == '4') {
-			Tanks1.refill97();
-			KeyData[0] = '\0';
-		}
-
-		*/
-
 	}
 	return 0;
 }
@@ -437,7 +465,7 @@ int main() {
 	CThread T3(ChildThread3, ACTIVE, NULL);
 	CThread T4(ChildThread4, ACTIVE, NULL);
 	CThread T5(ChildThread5, ACTIVE, NULL);
-
+	screen.openfile("gasstationrecords.txt");
 
 	while (1) {
 		screen.printtime(&tempstore);
@@ -446,11 +474,4 @@ int main() {
 	p1.WaitForProcess();
 	p2.WaitForProcess();
 	return 0;
-}
-
-int* getdate() {
-	int result[6];
-	
-//	printf("Y%d M%d D%d H%d M%d S%d", year, month, time1, hourshere, minutes, seconds);
-	return &result[0];
 }

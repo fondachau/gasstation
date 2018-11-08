@@ -19,6 +19,13 @@ char CS2[4] = "CS2";
 char CS3[4] = "CS3";
 char CS4[4] = "CS4";
 
+#define ANSI_COLOR_RED     "\x1b[31m"
+#define ANSI_COLOR_GREEN   "\x1b[32m"
+#define ANSI_COLOR_YELLOW  "\x1b[33m"
+#define ANSI_COLOR_BLUE    "\x1b[34m"
+#define ANSI_COLOR_MAGENTA "\x1b[35m"
+#define ANSI_COLOR_CYAN    "\x1b[36m"
+#define ANSI_COLOR_RESET   "\x1b[0m"
 
 
 Tanks Tanks1("Tanks");		// a monitor with built in synchronisation	
@@ -121,7 +128,29 @@ UINT __stdcall ChildThread(void *args) {
 				for (int x = 0; x < 10; x++) {
 					printf("%c", mystruct.name[x]);
 				}
+				
 				MOVE_CURSOR(cursorx, cursory + 5);
+				/*if (mystruct.color == 0) {
+					printf(ANSI_COLOR_RED);
+				}
+				else if (mystruct.color == 1) {
+					printf(ANSI_COLOR_RESET);
+				}
+				else if (mystruct.color == 2) {
+					printf(ANSI_COLOR_YELLOW);
+				}
+				else if (mystruct.color == 3) {
+					printf(ANSI_COLOR_BLUE);
+				}
+				else if (mystruct.color == 4) {
+					printf(ANSI_COLOR_MAGENTA);
+				}
+				else if (mystruct.color == 5) {
+					printf(ANSI_COLOR_CYAN);
+				}
+				else
+					printf(ANSI_COLOR_GREEN);
+*/
 				printf("       _________\n");
 				MOVE_CURSOR(cursorx, cursory + 6);
 				printf("____ /_____|___\\___\n");
@@ -129,6 +158,8 @@ UINT __stdcall ChildThread(void *args) {
 				printf("O   _   -  |  _   ,*\n");
 				MOVE_CURSOR(cursorx, cursory + 8);
 				printf("'--(_)-------(_)--'\n");
+				//printf(ANSI_COLOR_RESET);
+
 				DoswindowMux.Signal();
 			}
 		//}
@@ -256,6 +287,7 @@ int Pump::main(void) {
 	{
 		int cursorx;
 		int cursory;
+		double gasprice=0.0;
 		double pumpedvol=0.0;
 
 
@@ -280,7 +312,7 @@ int Pump::main(void) {
 		}
 		DoswindowMux.Wait();
 		MOVE_CURSOR(cursorx, cursory);
-		printf("create/use the datapool\n", pumpName);
+		printf("create/use the datapool\n");
 		MOVE_CURSOR(cursorx, cursory + 1);
 		printf("linked to datapool at %p\n", mypump);
 		MOVE_CURSOR(cursorx, cursory + 2);
@@ -290,6 +322,8 @@ int Pump::main(void) {
 		//r1.Wait();
 		CSemaphore		ps1(PS, 0, 1);    // semaphore with initial value 0 and max value 1
 		CSemaphore		cs1(CS, 1, 1);    // semaphore with initial value 1 and max value 1
+		CSemaphore		psb(PS+string("b"), 0, 1);    // semaphore with initial value 0 and max value 1
+		CSemaphore		csb(CS + string("b"), 1, 1);    // semaphore with initial value 1 and max value 1
 
 		CSemaphore   EntryGate(EntryGate, 0, 1);
 		CSemaphore   ExitGate(ExitGate, 0, 1);
@@ -344,8 +378,10 @@ int Pump::main(void) {
 					EntryGate.Signal();
 
 				}
-
-				
+				DoswindowMux.Wait();
+				MOVE_CURSOR(cursorx, cursory + 3);
+				printf("gas rate:%.2lf, cost:%.2lf", gasprice, gasprice*pumpedvol);
+				DoswindowMux.Signal();
 				cs1.Wait();
 				mypump->pumpnumber = pumpnumber;
 				mypump->status = mystruct.status;
@@ -357,7 +393,12 @@ int Pump::main(void) {
 				}
 				ps1.Signal();
 
-			
+				if (mystruct.status == 4) {
+					psb.Wait();
+					gasprice = mypump->baseprice;
+					csb.Signal();
+				}
+
 		}
 		return 0;
 	}
