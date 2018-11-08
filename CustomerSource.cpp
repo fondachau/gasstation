@@ -20,15 +20,15 @@ int main() {
 	customerbob.Resume();
 	SLEEP(100);
 	/**/
-	Customer customertim(21234123, tim, 91, 1,45.0);
+	Customer customertim(21234123, tim, 91, 2,45.0);
 	customertim.Resume();
 	
 	SLEEP(100);
-	Customer customerjohn(38765432, john, 91, 1,30.0);
+	Customer customerjohn(38765432, john, 91, 3,30.0);
 	customerjohn.Resume();
 	
 	SLEEP(100);
-	Customer customersteve(41827364, steve, 80, 1,20.0);
+	Customer customersteve(41827364, steve, 80, 4,20.0);
 	customersteve.Resume();
 	
 	SLEEP(100);
@@ -45,7 +45,7 @@ int main() {
 	customerchuck.Resume();
 
 
-	/*char cust[10] = "customer ";
+	char cust[10] = "customer ";
 	Customer *thePassengers[100];
 	for (int i = 0; i < 100; i++) {
 		int Nameindex = rand() % 4;
@@ -69,7 +69,7 @@ int main() {
 		thePassengers[i]->Resume();
 		Sleep(rand() % 1000);
 	}
-	*/
+	
 	while(1){}
 	return 0;
 }

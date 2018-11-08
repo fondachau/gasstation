@@ -309,7 +309,8 @@ int Pump::main(void) {
 				
 				if (mystruct.status == 1) {
 					Full.Wait();
-
+					while ((Tanks1.read78() < 200) || (Tanks1.read80() < 200) || (Tanks1.read91() < 200) || (Tanks1.read97() < 200)) {
+					}
 					pumpedvol = 0.0;
 				}
 				if (mystruct.status == 5) {
@@ -335,6 +336,7 @@ int Pump::main(void) {
 				}
 
 				if (mystruct.status == 0) {
+					pumpedvol = 0;
 					ExitGate.Signal();
 					
 					Empty.Wait();
