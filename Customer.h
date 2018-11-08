@@ -155,6 +155,7 @@ int Customer::main() {
 	EntryGate.Wait(); //wait for free pump
 	mystruct.status = 1;
 
+	SLEEP(1000);
 	M1.Wait();
 	P1.Write(&mystruct);			// write the structure to the pipeline
 	M1.Signal();
@@ -165,31 +166,34 @@ int Customer::main() {
 	
 	
 
-	SLEEP(1000);
 
 	mystruct.status = 2;
 	mystruct.creditcard = creditcard;
+
+	SLEEP(1000);
 	M1.Wait();
 	P1.Write(&mystruct);			// write the structure to the pipeline
 	M1.Signal();
-
-	SLEEP(1000);
 
 	mystruct.status = 3;
+
+	SLEEP(1000);
 	M1.Wait();
 	P1.Write(&mystruct);			// write the structure to the pipeline
 	M1.Signal();
-	SLEEP(1000);
 
 	mystruct.status = 4;
 	mystruct.desiredgrade = desiredgrade;
+
+	SLEEP(1000);
 	M1.Wait();
 	P1.Write(&mystruct);			// write the structure to the pipeline
 	M1.Signal();
+	
+	mystruct.status = 5;
 	SLEEP(1000);
 
 
-	mystruct.status = 5;
 	M1.Wait();
 	P1.Write(&mystruct);			// write the structure to the pipeline
 	M1.Signal();
@@ -204,17 +208,21 @@ int Customer::main() {
 	}
 
 	mystruct.status = 6;
+	SLEEP(1000);
+
+
 	M1.Wait();
 	P1.Write(&mystruct);			// write the structure to the pipeline
 	M1.Signal();
-	SLEEP(1000);
-
+	
 	mystruct.status = 0;
 	for (int x = 0; x < 10; x++) {
 		mystruct.name[x] = NullName[x];
 	}
 	mystruct.desiredgrade = 0;
 	mystruct.creditcard = 0;
+	SLEEP(1000);
+
 	M1.Wait();
 	P1.Write(&mystruct);			// write the structure to the pipeline
 	M1.Signal();	

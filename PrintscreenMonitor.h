@@ -20,6 +20,13 @@
 struct 	    Donestruct {
 	PumpDataPool pool;
 
+	int day;
+	int seconds;
+	int minutes;
+	int year;
+	int month;
+	int hours;
+
 };
 class 	MonitorScreen {
 private:
@@ -33,7 +40,7 @@ private:
 	List<char*> Pump4LL;
 	int waitlistcount;
 	List<char*>L0;
-	List<PumpDataPool*>DONELL;
+	List<Donestruct*>DONELL;
 
 
 	/*struct theData {
@@ -105,7 +112,7 @@ public:
 		}
 		printwaitlist(x);
 	}
-void addtodoneLL(PumpDataPool* cust) {
+void addtodoneLL(Donestruct* cust) {
 		Mutex5->Wait();
 		DONELL.Insert(cust);
 		Mutex5->Signal();
@@ -119,9 +126,14 @@ void printdoneLL() {
 
 	index=DONELL.NumberofNodes();
 	MutexScreen->Wait();
-	for (x = 0; x <= index; x++) {
-		MOVE_CURSOR(0, 40 + x);
-		printf("%d %d\n", index, DONELL.Get(x)->creditcard);
+
+	for (x = 0; x < index; x++) {
+		if (DONELL.Get(x) != NULL) {
+			MOVE_CURSOR(140, 0 + x);
+			printf("[Y%d M%d D%d H%d M%d S%d] %d %lf %d %d %s\n", 
+				DONELL.Get(x)->year, DONELL.Get(x)->month, DONELL.Get(x)->day, DONELL.Get(x)->hours, DONELL.Get(x)->minutes, DONELL.Get(x)->seconds, 
+				DONELL.Get(x)->pool.tankusing, DONELL.Get(x)->pool.volume, DONELL.Get(x)->pool.pumpnumber,DONELL.Get(x)->pool.creditcard, DONELL.Get(x)->pool.name);
+		}
 	}
 	MutexScreen->Signal();
 	Mutex5->Signal();
@@ -183,9 +195,10 @@ int waitlistindex(int x) {
 	return index;
 }
 
-void printtime() {
+void printtime(Donestruct *output) {
 
-	int x;
+	//int x;
+//	int output[6];
 	int time1;
 	int seconds;
 	int minutes;
@@ -297,11 +310,18 @@ void printtime() {
 	printf("Y%d M%d D%d H%d M%d  S%d  ", year, month, time1, hourshere, minutes, seconds);
 
 	MutexScreen->Signal();
+	output->year = year;
+	output->month = month;
+		output->day = time1;
+		output->hours = hourshere;
+		output->minutes = minutes;
+		output->seconds = seconds;
+		//return
 }
 
 void printtank(int x, double vol) {
 	MutexScreen->Wait();
-
+	
 	if (x == 78) {
 
 		MOVE_CURSOR(0, 0);
@@ -339,7 +359,7 @@ void printwaitlist(int x) {
 	int index;
 	int i;
 	//int y;
-	char *custname;
+	//char *custname;
 	if (x == 1) {
 
 		
@@ -347,21 +367,26 @@ void printwaitlist(int x) {
 		Mutex1->Wait();
 		index=Pump1LL.NumberofNodes();
 		MutexScreen->Wait();
+		//CLEAR_SCREEN();
 		//printf("%d", Pump1LL.NumberofNodes());
 		//custname = Pump1LL.Get(0);
 		//printf(" %s\n",custname);
 		if (index != 0) {
-			for (i = 0; i <= index; i++) {
+			for (i = 0; i < index; i++) {
 
 				MOVE_CURSOR(0, 20 + i);
 				printf("%d %d %s\n", index, i, Pump1LL.Get(i));
 			}
+
+			MOVE_CURSOR(0, 20 + i);
 		}
 
-		else 
-
+		else
+		
 			MOVE_CURSOR(0, 20);
-		printf("                \n");
+
+			printf("                 \n");
+
 		MutexScreen->Signal();
 		Mutex1->Signal();
 	}
@@ -372,13 +397,21 @@ void printwaitlist(int x) {
 		//printf("%d", Pump1LL.NumberofNodes());
 		//custname = Pump1LL.Get(0);
 		//printf(" %s\n",custname);
+		if (index != 0) {
 
-		for (i = 0; i <= index; i++) {
+			for (i = 0; i < index; i++) {
 
-			MOVE_CURSOR(30, 20+i);
-			printf("%d %d %s\n", index, i, Pump2LL.Get(i));
+				MOVE_CURSOR(30, 20 + i);
+				printf("%d %d %s\n", index, i, Pump2LL.Get(i));
+			}
+
+			MOVE_CURSOR(30, 20 + i);
 		}
-		printf("              \n");
+		else 
+			MOVE_CURSOR(30, 20);
+
+			printf("               \n");
+
 
 		MutexScreen->Signal();
 		
@@ -388,15 +421,20 @@ void printwaitlist(int x) {
 		Mutex3->Wait();
 		index = Pump3LL.NumberofNodes();
 		MutexScreen->Wait();
+		if (index != 0) {
 
-		for (i = 0; i <= index; i++) {
+		for (i = 0; i < index; i++) {
 
 			MOVE_CURSOR(60, 20+i);
 			printf("%d %d %s\n", index, i, Pump3LL.Get(i));
 		}
-		MOVE_CURSOR(60, 20 + i);
 
-		printf("             \n");
+		MOVE_CURSOR(60, 20 + i);
+		}
+		else 
+			MOVE_CURSOR(60, 20);
+
+			printf("                   \n");
 
 		MutexScreen->Signal();
 
@@ -408,13 +446,20 @@ void printwaitlist(int x) {
 
 		index = Pump4LL.NumberofNodes();
 		MutexScreen->Wait();
+		if (index != 0) {
 
-		for (i = 0; i <= index; i++) {
+
+		for (i = 0; i < index; i++) {
 
 			MOVE_CURSOR(90, 20+i);
 			printf("%d %d %s\n", index, i, Pump4LL.Get(i));
 		}
-		printf("               \n");
+		MOVE_CURSOR(90, 20 + i);
+		}
+		else 
+			MOVE_CURSOR(90, 20);
+
+			printf("                   \n");
 
 		MutexScreen->Signal();
 	//	Pump4LL.Insert(name);

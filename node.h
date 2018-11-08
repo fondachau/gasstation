@@ -59,11 +59,15 @@ int List<T>::NumberofNodes() {
 
 	if (first == NULL) {
 	}
-	else if (first->next != NULL) {
-		while (temp->next != NULL) {
-			
-			temp = temp->next;
-			count++;
+	else {
+		count = 1;
+		if (first->next != NULL) {
+
+			while (temp->next != NULL) {
+
+				temp = temp->next;
+				count++;
+			}
 		}
 	}
 	return count;

@@ -50,6 +50,8 @@ UINT __stdcall ChildThread1(void *args) {
 	int i=0;
 	int j = 0;
 	PumpDataPool mystructsave[100];
+
+	Donestruct savedonestruct[100];
 	RP.Wait();
 	PumpDataPool cust;
 	while (1)
@@ -91,8 +93,9 @@ UINT __stdcall ChildThread1(void *args) {
 				mystructsave[j].name[x] = mypump1->name[x];
 			}
 
-			screen.addtodoneLL(&mystructsave[j]);
-			
+			savedonestruct[j].pool = mystructsave[j];
+			screen.printtime(&savedonestruct[j]);
+			screen.addtodoneLL(&savedonestruct[j]);
 			j++;
 		}
 			//}
@@ -111,6 +114,8 @@ UINT __stdcall ChildThread2(void *args) {
 	int i = 0;
 	int j = 0;
 	PumpDataPool mystructsave[100];
+
+	Donestruct savedonestruct[100];
 	RP.Wait();
 	PumpDataPool cust;
 	while (1)
@@ -152,7 +157,9 @@ UINT __stdcall ChildThread2(void *args) {
 				mystructsave[j].name[x] = mypump1->name[x];
 			}
 
-			screen.addtodoneLL(&mystructsave[j]);
+			savedonestruct[j].pool = mystructsave[j];
+			screen.printtime(&savedonestruct[j]);
+			screen.addtodoneLL(&savedonestruct[j]);
 
 			j++;
 		}
@@ -173,6 +180,7 @@ UINT __stdcall ChildThread3(void *args) {
 	int i = 0;
 	int j = 0;
 	PumpDataPool mystructsave[100];
+	Donestruct savedonestruct[100];
 	RP.Wait();
 	PumpDataPool cust;
 	while (1)
@@ -214,8 +222,9 @@ UINT __stdcall ChildThread3(void *args) {
 			for (x = 0; x < 10; x++) {
 				mystructsave[j].name[x] = mypump1->name[x];
 			}
-
-			screen.addtodoneLL(&mystructsave[j]);
+			savedonestruct[j].pool = mystructsave[j];
+			screen.printtime(&savedonestruct[j]);
+			screen.addtodoneLL(&savedonestruct[j]);
 
 			j++;
 		}
@@ -236,6 +245,8 @@ UINT __stdcall ChildThread4(void *args) {
 	int i = 0;
 	int j = 0;
 	PumpDataPool mystructsave[100];
+
+	Donestruct savedonestruct[100];
 	RP.Wait();
 	PumpDataPool cust;
 	while (1)
@@ -278,7 +289,9 @@ UINT __stdcall ChildThread4(void *args) {
 				mystructsave[j].name[x] = mypump1->name[x];
 			}
 
-			screen.addtodoneLL(&mystructsave[j]);
+			savedonestruct[j].pool = mystructsave[j];
+			screen.printtime(&savedonestruct[j]);
+			screen.addtodoneLL(&savedonestruct[j]);
 
 			j++;
 		}
@@ -294,9 +307,10 @@ UINT __stdcall ChildThread4(void *args) {
 
 UINT __stdcall ChildThread5(void *args) {
 	//char gotchar;
-	char KeyData[2] = { '\0', '\0' };// a 2 character keyboard command initialised to be emptyin
+	char KeyData[4] = { '\0', '\0','\0', '\0' };// a 2 character keyboard command initialised to be emptyin
 	Tanks Tanks1("Tanks");		// a monitor with built in synchronisation	
-	int x;
+	//int x;
+	int count=0;
 	while (1) {
 
 		double tank78vol;
@@ -314,57 +328,56 @@ UINT __stdcall ChildThread5(void *args) {
 		screen.printtank(91, tank91vol);
 		screen.printtank(97, tank97vol);
 		if (TEST_FOR_KEYBOARD() != 0) {
-			//KeyData[0] = KeyData[1];// move up previous character read
+			count++;
+			KeyData[3] = KeyData[2];// move up previous character read
+			KeyData[2] = KeyData[1];// move up previous character read
+			KeyData[1] = KeyData[0];// move up previous character read
 			KeyData[0] = _getch();// read next character from keyboard}}
+			SLEEP(250);
 			DoswindowMux.Wait();
 			MOVE_CURSOR(0, 31);
-			printf("11111 %c %c", KeyData[0], KeyData[1]);
+			printf("%d %d %c %c %c %c", TEST_FOR_KEYBOARD(),count,KeyData[0], KeyData[1], KeyData[2], KeyData[3]);
 			DoswindowMux.Signal();
-			if (KeyData[0] == 'f') {
-				if (TEST_FOR_KEYBOARD() != 0) {
-					
-					//KeyData[0] = KeyData[1];// move up previous character read
-					KeyData[1] = _getch();// read next character from keyboard}}
-					DoswindowMux.Wait();
-					MOVE_CURSOR(0, 32);
-					printf("11111 %c %c", KeyData[0], KeyData[1]);
-					DoswindowMux.Signal();
-					//SLEEP(5000);
-				}
-				if (KeyData[1] == 'r'&&KeyData[0] == 'f' || KeyData[0] == 'r'&&KeyData[1] == 'f') {
+				if ((KeyData[1] == 'r'&&KeyData[3] == 'f' )|| (KeyData[3] == 'r'&&KeyData[1] == 'f') ){
 					Tanks1.refill();
 					KeyData[0] = '\0';// move up previous character read
 					KeyData[1] = '\0';// read next character from keyboard}}
 
 				}
 
-				if (KeyData[1] == '1'&&KeyData[0] == 'f' || KeyData[0] == '1'&&KeyData[1] == 'f') {
+				if ((KeyData[1] == '1'&&KeyData[3] == 'f') || (KeyData[3] == '1'&&KeyData[1] == 'f')) {
 					Tanks1.refill78();
 					KeyData[0] = '\0';// move up previous character read
 					KeyData[1] = '\0';// read next character from keyboard}}
 
 				}
-				if (KeyData[1] == '2'&&KeyData[0] == 'f' || KeyData[0] == '2'&&KeyData[1] == 'f') {
+				if ((KeyData[1] == '2'&&KeyData[3] == 'f') || (KeyData[3] == '2'&&KeyData[1] == 'f')) {
 					Tanks1.refill80();
 					KeyData[0] = '\0';// move up previous character read
 					KeyData[1] = '\0';// read next character from keyboard}}
 
 				}
-				if (KeyData[1] == '3'&&KeyData[0] == 'f' || KeyData[0] == '3'&&KeyData[1] == 'f') {
+				if ((KeyData[1] == '3'&&KeyData[3] == 'f' )|| (KeyData[3] == '3'&&KeyData[1] == 'f')) {
 					Tanks1.refill91();
 					KeyData[0] = '\0';// move up previous character read
 					KeyData[1] = '\0';// read next character from keyboard}}
 
 				}
-				if (KeyData[1] == '4'&&KeyData[0] == 'f' || KeyData[0] == '4'&&KeyData[1] == 'f') {
+				if ((KeyData[1] == '4'&&KeyData[3] == 'f' )|| (KeyData[3] == '4'&&KeyData[1] == 'f')) {
 					Tanks1.refill97();
 					KeyData[0] = '\0';// move up previous character read
 					KeyData[1] = '\0';// read next character from keyboard}}
 
 				}
+				if ((KeyData[1] == 's'&&KeyData[3] == 'c') || (KeyData[3] == 's'&&KeyData[1] == 'c')) {
+					DoswindowMux.Wait();
+
+					CLEAR_SCREEN();
+					DoswindowMux.Signal();
+				}
 
 
-			}
+
 
 			//SLEEP(5000);
 		}
@@ -406,6 +419,7 @@ UINT __stdcall ChildThread5(void *args) {
 
 */
 int main() {
+	Donestruct tempstore;
 	CProcess p1("..\\Debug\\pumps.exe",	// pathlist to child program executable				
 		NORMAL_PRIORITY_CLASS,			// priority
 		OWN_WINDOW,						// process has its own window					
@@ -426,7 +440,7 @@ int main() {
 
 
 	while (1) {
-		screen.printtime();
+		screen.printtime(&tempstore);
 
 	}
 	p1.WaitForProcess();
